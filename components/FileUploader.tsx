@@ -37,7 +37,7 @@ const FileUploader = () => {
     }
     console.log("files", files);
     console.log("formData", formData);
-    
+
     const response = await fetch('/api/process', {
       method: 'POST',
       body: formData,
