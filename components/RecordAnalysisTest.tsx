@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import useRenderImages from '../hooks/useRenderImages';
 import useRenderImageskeywords from '../hooks/useRenderImageskeywords';
 
-const RecordAnalysis = () => {
+const RecordAnalysisTest = () => {
   const [recording, setRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [latestAudioUrl, setLatestAudioUrl] = useState<string | null>(null);
@@ -21,6 +21,7 @@ const RecordAnalysis = () => {
   const { renderImageskeywords } = useRenderImageskeywords();
   const [enterCount, setEnterCount] = useState(0);
   const [onrecording, setOnrecording] = useState(false);
+  const [dummy, setDummy] = useState(false); // true: ダミーapi，false: 通常api
   const tmpkeywords = ['熱力学第一法則　公式','熱力学第一法則　内部エネルギー','熱力学第一法則　例題','熱力学第一法則　図解','熱力学第一法則　状態変化'];
 
   const handleEnterKey = (event: KeyboardEvent) => {
@@ -43,6 +44,37 @@ const RecordAnalysis = () => {
   }, []);
 
   const startRecording = async () => {
+    setDummy(false); // 通常apiを呼び出す
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+    audioChunksRef.current = [];
+    allAudioChunksRef.current = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      audioChunksRef.current.push(event.data);
+      allAudioChunksRef.current.push(event.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      saveFinalRecording();
+    };
+
+    mediaRecorder.start();
+    setRecording(true);
+
+    intervalRef.current = setInterval(() => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+        saveIntervalRecording();
+        mediaRecorderRef.current.start();
+        audioChunksRef.current = [];
+      }
+    }, 10000);
+  };
+
+  const startRecordingDummy = async () => {
+    setDummy(true); // ダミーapiを呼び出す
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     const mediaRecorder = new MediaRecorder(stream);
     mediaRecorderRef.current = mediaRecorder;
@@ -148,29 +180,48 @@ const RecordAnalysis = () => {
     const processAllAudio = async () => {
         let result: {  message: string, content: string  } = { message: '', content: '' };
         if (allAudioUrl) {
+          if (dummy) { // ダミーapiを呼び出す
             try {
-            // URLからbase64へ変換
-            const audioBase64 = await convertUrlToBase64(allAudioUrl);
+              // URLからbase64へ変換
+              const audioBase64 = await convertUrlToBase64(allAudioUrl);
 
-            // 変換したbase64データをAPIに送信
-            const response = await fetch('/api/process-all-audio', {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ audioData: audioBase64, type: 'all' }),
-            });
-            result = await response.json();
-            } catch (error) {
-            console.error("Error:", error);
-            }
+              // 変換したbase64データをAPIに送信
+              const response = await fetch('/api/process-all-audio-dummy', {
+                  method: 'POST',
+                  headers: {
+                  'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ audioData: audioBase64, type: 'all' }),
+              });
+              result = await response.json();
+              } catch (error) {
+              console.error("Error:", error);
+              }
+          }
+          else { // 通常apiを呼び出す
+            try {
+              // URLからbase64へ変換
+              const audioBase64 = await convertUrlToBase64(allAudioUrl);
+
+              // 変換したbase64データをAPIに送信
+              const response = await fetch('/api/process-all-audio', {
+                  method: 'POST',
+                  headers: {
+                  'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ audioData: audioBase64, type: 'all' }),
+              });
+              result = await response.json();
+              } catch (error) {
+              console.error("Error:", error);
+              }
+          }
         }
         setCurrentIndex(0);
         setOutput(result.content);
         console.log("result", result);
         console.log("content", result.content);
         setKeywords(result.content.split(','));
-        // setKeywords(tmpkeywords);
     };
     processAllAudio();
   }, [allAudioUrl]);
@@ -188,14 +239,21 @@ const RecordAnalysis = () => {
           className="px-4 py-2 mt-5 text-white bg-blue-500 rounded hover:bg-blue-700"
           disabled={recording}
         >
-          Start Recording
+          Start
+        </button>
+        <button
+          onClick={startRecordingDummy}
+          className="px-4 py-2 mt-5 text-white bg-blue-500 rounded hover:bg-blue-700"
+          disabled={recording}
+        >
+          Recording
         </button>
         <button
           onClick={stopRecording}
           className="px-4 py-2 mt-5 ml-2 text-white bg-red-500 rounded hover:bg-red-700"
           disabled={!recording}
         >
-          Stop Recording
+          StopRecording
         </button>
       </div>
       <p className="mt-3 text-xl">{transcript}</p>
@@ -278,4 +336,4 @@ const RecordAnalysis = () => {
   );
 };
 
-export default RecordAnalysis;
+export default RecordAnalysisTest;

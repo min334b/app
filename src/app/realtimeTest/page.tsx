@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import RecordAnalysis from '../../../components/RecordAnalysis';
+import RecordAnalysisTest from '../../../components/RecordAnalysisTest';
 
 
 export default function Home() {
@@ -12,7 +12,7 @@ export default function Home() {
 
     <main className="flex flex-col items-center justify-start w-full text-center">
       <h1 className="text-6xl font-bold mt-0">補助資料提示システム</h1>
-      <RecordAnalysis />
+      <RecordAnalysisTest />
     </main>
 
       {/* <footer className="flex items-center justify-center w-full h-24 border-t">

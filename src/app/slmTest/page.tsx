@@ -3,6 +3,8 @@ import Recorder from '../../../components/Recorder';
 import FileUploader from '../../../components/FileUploader';
 import RecordAnalysis from '../../../components/RecordAnalysis';
 import SLMtest from '../../../components/SLMtest';
+import Whispertest from '../../../components/Whispertest';
+import { Whisper } from 'next/font/google';
 
 
 export default async function Home() {
@@ -19,13 +21,13 @@ export default async function Home() {
         return <div>Failed to fetch</div>;
     }
     console.log(response)
-      const data = await response.json();
-      console.log(data)
+    const data = await response.json();
+    console.log(data)
     return (
         <main className="flex flex-col items-center justify-start w-full text-center">
             <h1 className="text-6xl font-bold mt-0">補助資料提示システム</h1>
             <div>{data.response}</div>
-            <SLMtest />
+            <Whispertest />
         </main>
     );
 }

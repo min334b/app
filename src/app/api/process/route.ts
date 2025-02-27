@@ -1,12 +1,12 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+// import { NextApiRequest, NextApiResponse } from 'next';
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI, GenerateContentRequest, Part } from '@google/generative-ai';
 
-import formidable from 'formidable';
-import fs from 'fs';
+// import formidable from 'formidable';
+// import fs from 'fs';
 const mime = require("mime-types");
-import path from 'path';
-import { exec } from 'child_process';
+// import path from 'path';
+// import { exec } from 'child_process';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
 
@@ -47,14 +47,14 @@ function convertAudioToBase64(file: any) {
 //   const result = await model.generateContent([
 //     "この音声の内容を要約してください．",
 //     {
-//       inlineData: 
+//       inlineData:
 //           { data: audio, mimeType: "audio/wav" }
 //     },
 //     {
-//       inlineData: 
+//       inlineData:
 //           { data: audioAll, mimeType: "audio/wav" }
 //     },
-    
+
 //   ]);
 //   const response = await result.response;
 //   const text = response.text();
@@ -95,11 +95,11 @@ export const POST = async (req: NextRequest) => {
     const result = await model.generateContent([
       prompt,
       {
-        inlineData: 
+        inlineData:
             { data: audio, mimeType: "audio/wav" }
       },
       {
-        inlineData: 
+        inlineData:
             { data: image, mimeType: "image/*" }
       },
     ]);
@@ -137,7 +137,7 @@ export const POST = async (req: NextRequest) => {
 
     //   // Gemini1.5 Flashのプロンプト処理のためのダミー処理
     //   // 実際にはここでGemini1.5 Flash APIを呼び出す
-      
+
     //   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
     //   const prompt = "この音声の内容の理解を促進させるような画像を検索するための「検索ワード」を一つだけ出力してください．\nただし，「おにぎり 食べ方」のように，複数単語を含む検索ワードでも構いません．\n"
 
